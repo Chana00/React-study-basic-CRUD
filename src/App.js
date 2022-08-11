@@ -72,10 +72,43 @@ function Create(props) {
           <input type="text" name="title" placeholder="title" />
         </p>
         <p>
-          <input type="textarea" name="body" placeholder="body" />
+          <textarea name="body" placeholder="body" />
         </p>
         <p>
           <input type="submit" value="Create" />
+        </p>
+      </form>
+    </article>
+  );
+}
+
+function Update(props) {
+  const [title, setTitle] = useState(props.title);
+  const [body, setBody] = useState(props.body);
+
+  return (
+    <article>
+      <h2>Update</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const title = e.target.title.value;
+          const body = e.target.body.value;
+          props.onUpdate(title, body);
+        }}
+      >
+        <p>
+          <input type="text" name="title" placeholder="title" value={title} onChange={e => {
+            setTitle(e.target.value);
+          } }/>
+        </p>
+        <p>
+          <textarea name="body" placeholder="body" value={body}  onChange={e => {
+            setBody(e.target.value);
+          } }/>
+        </p>
+        <p>
+          <input type="submit" value="Update" />
         </p>
       </form>
     </article>
@@ -86,6 +119,9 @@ function App() {
   // const _mode = useState("WELCOME");
   // const mode = _mode[0];
   // const setMode = _mode[1];
+  let content = null;
+  let contextControl = null;
+
   const [mode, setMode] = useState("WELCOME");
   const [id, setId] = useState(null);
   const [nextId, setNextId] = useState(4);
@@ -94,13 +130,11 @@ function App() {
     { id: 2, title: "css", body: "css is ... " },
     { id: 3, title: "javascript", body: "javascript is ... " },
   ]);
-  let content = null;
 
   if (mode === "WELCOME") {
     content = <ArtiCus title="Welcome" body="Hello, WEB!"></ArtiCus>;
   } else if (mode === "READ") {
-    let title,
-      body = null;
+    let title, body = null;
 
     for (let i = 0; i < topics.length; i++) {
       if (topics[i].id === id) {
@@ -109,6 +143,11 @@ function App() {
       }
     }
     content = <ArtiCus title={title} body={body}></ArtiCus>;
+    contextControl = <li><a href={'/update/' + id} onClick = { e =>{
+      e.preventDefault();
+      setMode('UPDATE');
+    }}>Update</a></li>;
+
   } else if (mode === "CREATE") {
     content = (
       <Create
@@ -123,6 +162,28 @@ function App() {
         }}
       ></Create>
     );
+  } else if (mode === "UPDATE") {
+    let title, body = null;
+
+    for (let i = 0; i < topics.length; i++) {
+      if (topics[i].id === id) {
+        title = topics[i].title;
+        body = topics[i].body;
+      }
+    }
+
+    content = <Update title={title} body={body} onUpdate= {(title, body)=> {
+      const newTopics = [...topics];
+      const updatedTopic = {id:id, title: title, body:body}
+      for(let i=0; i<newTopics.length; i++) {
+        if(newTopics[i].id === id) {
+          newTopics[i] = updatedTopic;
+          break;
+        }
+      }
+      setTopics(newTopics);
+      setMode('READ');
+    }}></Update>;
   }
 
   return (
@@ -141,15 +202,14 @@ function App() {
         }}
       ></Nav>
       {content}
-      <a
-        href="/create"
-        onClick={(e) => {
-          e.preventDefault();
-          setMode("CREATE");
-        }}
-      >
-        create
-      </a>
+      <ui>
+        <li><a href="/create" onClick={(e) => {
+            e.preventDefault();
+            setMode("CREATE");
+          }}
+        >create</a></li>
+        {contextControl}
+      </ui>
     </div>
   );
 }
