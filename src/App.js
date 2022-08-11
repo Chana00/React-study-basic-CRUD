@@ -143,10 +143,25 @@ function App() {
       }
     }
     content = <ArtiCus title={title} body={body}></ArtiCus>;
-    contextControl = <li><a href={'/update/' + id} onClick = { e =>{
+    //리액트는 하나의 태그 안에 들어있어야 하므로 빈 태그로 묶어준다
+    contextControl = <>                                      
+    <li><a href={'/update/' + id} onClick = { e =>{
       e.preventDefault();
       setMode('UPDATE');
-    }}>Update</a></li>;
+    }}>Update</a></li>
+    <li><input type="button" value="Delete" onClick={e => {
+      const newTopics = [];
+      for(let i=0; i<topics.length; i++) {
+        if(topics[i].id !== id) {
+          newTopics.push(topics[i]);
+        }
+      }
+
+      setTopics(newTopics);
+      setMode('WELCOME');
+    }}/></li>
+    </>
+    ;
 
   } else if (mode === "CREATE") {
     content = (
